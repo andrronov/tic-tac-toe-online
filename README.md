@@ -1,13 +1,13 @@
----
+<!-- ---
 difficulty: 2
 training: true
 chapter: "Chapter 5: Challenge Roundup"
 tags: vue
----
+--- -->
 
 # Tic-Tac-Toe
 
-# Challenge Description
+<!-- # Challenge Description
 
 In this challenge, your task is to create a working Tic-Tac-Toe game.
 For those unfamiliar with the game, [here are the rules](https://www.wikihow.com/Play-Tic-Tac-Toe).
@@ -30,4 +30,4 @@ For those unfamiliar with the game, [here are the rules](https://www.wikihow.com
 
 This is an example of what the functionality should look like for the completed exercise.
 
-![gif of the finished countdown app](https://images.certificates.dev/tic-tac-toe.gif)
+![gif of the finished countdown app](https://images.certificates.dev/tic-tac-toe.gif) -->
