@@ -1,9 +1,9 @@
 <template>
-   <div class="w-full max-w-7xl mx-auto h-screen flex justify-center items-center flex-col">
+   <div class="w-full max-w-7xl mx-auto h-screen flex justify-between py-2 items-center flex-col">
       <div class="w-full flex flex-row items-center justify-around">
          <p class="text-white" v-for="(user, index) in users" :key="index">{{user}}</p>
       </div>
-      <div class="grid grid-cols-3 gap-2 w-full max-w-7xl mx-auto h-full justify-center">
+      <div class="grid grid-cols-3 gap-2 w-full s:w-1/3 max-w-7xl mx-auto h-1/2 justify-center">
          <div v-for="(item, index) in matrix" :key="index" @click="item.length < 1 ? userMove(index) : ''" class="place-self-center w-24 h-24 cursor-pointer text-2xl flex items-center justify-center bg-gray-400">
             {{ item }}
          </div>
@@ -16,23 +16,18 @@
          <p>Draw</p>
          <p>Restart?</p>
       </div>
-      
-      <button v-if="!isMatrixFull && !isWin" @click="restartGame" class="mt-2 p-1 text-white border border-white hover:bg-gray-800">Restart</button>
-      <button @click="router.push('/')" class="mt-2 p-1 text-white border border-white hover:bg-gray-800">Back to menu</button>
-      <button @click="wwww" class="mt-2 p-1 text-white border border-white hover:bg-gray-800">clients</button>
+
+      <div class="flex flex-col items-center gap-3">
+         <button v-if="!isMatrixFull && !isWin" @click="restartGame" class="mt-2 p-1 text-white border border-white hover:bg-gray-800">Restart</button>
+         <button @click="router.push('/')" class="mt-2 p-1 text-white border border-white hover:bg-gray-800">Back to menu</button>
+      </div>
    </div>
 </template>
 <script setup>
-import {computed, ref, watch, watchEffect} from 'vue'
+import {computed, onBeforeUnmount, ref, watch, watchEffect} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import { useTicTacStore } from '../store/store.js'
 import socket from '../socket/main.js'
-
-function wwww(){
-   socket.send(JSON.stringify({
-      method: 'getClients'
-   }))
-}
 
 const route = useRoute()
 const router = useRouter()
@@ -44,7 +39,7 @@ const matrix = ref([
    '', '', '',
    '', '', '',
    ])
-const moveIdx = ref(1)
+// const moveIdx = ref(1)
 const arrX = ref([])
 const arrO = ref([])
 const messages = ref([])
@@ -109,10 +104,6 @@ watchEffect(() => {
          username: localUsername,
          method: 'connection'
       }))
-
-      // store.addUser(localUsername)
-      // users.value = store.users
-      // users.value = store.users
    }
 
    socket.onmessage = (event) => {
@@ -124,9 +115,23 @@ watchEffect(() => {
             users.value = msg.clients
             break;
       
+         case 'disconnection':
+            console.log(`User ${msg.username} disconnected`);
+            users.value = msg.clients
+            break;
+
          default:
             break;
       }
    }
+})
+
+onBeforeUnmount(() => {
+   socket.close()
+   // socket.send(JSON.stringify({
+   //    method: 'disconnection',
+   //    username: localStorage.getItem('username'),
+   //    id: route.params.id
+   // }))
 })
 </script>

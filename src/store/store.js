@@ -2,12 +2,8 @@ import { defineStore } from "pinia";
 
 export const useTicTacStore = defineStore('tictac', {
    state: () => ({
-      users: []
+      moveIndex: 1
    }),
 
-   actions: {
-      addUser(user){
-         this.users.push(user)
-      }
-   }
+   actions: {}
 })

@@ -13,22 +13,21 @@ app.ws('/', (ws, res) => {
 
       switch (msg.method) {
          case 'connection':
-            SocketClass.handleConnect(aWss, ws, msg, clients)
+            SocketClass.handleConnect(aWss, ws, msg)
             break;
 
          case 'disconnection':
-
             break
       
          default:
             break;
       }
    })
-
-  //  ws.on('close', () => {
-  //     ws.send(JSON.stringify(clients))
-  //     return clients = clients.filter(client => client !== ws.user);
-  // });
+   
+   ws.on('close', () => {
+    console.log('disconnected');
+    SocketClass.handleDisconnect(aWss, ws)
+  });
 })
 
 app.listen('1234', () => console.log('App works on port 1234'));
