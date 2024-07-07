@@ -16,7 +16,8 @@ app.ws('/', (ws, res) => {
             SocketClass.handleConnect(aWss, ws, msg)
             break;
 
-         case 'disconnection':
+         case 'move':
+            SocketClass.broadcastUserMove(aWss, ws, msg)
             break
       
          default:

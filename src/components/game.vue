@@ -3,6 +3,7 @@
       <div class="w-full flex flex-row items-center justify-around">
          <p class="text-white" v-for="(user, index) in users" :key="index">{{user}}</p>
       </div>
+      <p class="text-white">{{ store.moveIndex }}</p>
       <div class="grid grid-cols-3 gap-2 w-full s:w-1/3 max-w-7xl mx-auto h-1/2 justify-center">
          <div v-for="(item, index) in matrix" :key="index" @click="item.length < 1 ? userMove(index) : ''" class="place-self-center w-24 h-24 cursor-pointer text-2xl flex items-center justify-center bg-gray-400">
             {{ item }}
@@ -34,29 +35,37 @@ const router = useRouter()
 const store = useTicTacStore()
 
 const users = ref([])
-const matrix = ref([
-   '', '', '',
-   '', '', '',
-   '', '', '',
-   ])
-// const moveIdx = ref(1)
-const arrX = ref([])
-const arrO = ref([])
+const matrix = ref(store.matrix)
+const arrX = ref(store.arrX)
+const arrO = ref(store.arrO)
 const messages = ref([])
 
 function incrementMoveIdx(){
-   moveIdx.value ++
+   store.incrementIndex()
+}
+function userMoveSocket(){
+   // console.log(store.matrix);
+   socket.send(JSON.stringify({
+         method: 'move',
+         matrix: store.matrix,
+         index: store.moveIndex,
+         id: route.params.id
+      }))
 }
 
 function userMove(idx){
-   if(moveIdx.value % 2 == 0){
-      matrix.value[idx] = '0'
-      arrO.value.push(idx)
+   const moveIdx = store.moveIndex
+   if(moveIdx % 2 == 0){
+      store.setMatrix(idx, 'O')
+      store.oArrayPush(idx)
       incrementMoveIdx()
+      userMoveSocket()
+      
    } else {
-      matrix.value[idx] = 'X'
-      arrX.value.push(idx)
+      store.setMatrix(idx, 'X')
+      store.xArrayPush(idx)
       incrementMoveIdx()
+      userMoveSocket()
    }
 }
 
@@ -118,6 +127,11 @@ watchEffect(() => {
          case 'disconnection':
             console.log(`User ${msg.username} disconnected`);
             users.value = msg.clients
+            break;
+
+         case 'move':
+            store.setWholeMatrix(msg.matrix)
+            store.setMoveIndex(msg.index)
             break;
 
          default:
