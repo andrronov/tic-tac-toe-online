@@ -22,12 +22,12 @@ const usernameInput = ref('')
 
 function handleUsername(){
    localStorage.setItem('username', usernameInput.value)
-   router.push(`/game/${(+new Date()).toString(16)+Math.random()}`)
+   router.push('/lobby')
 }
 
 function openModal(){
    const localUsername = localStorage.getItem('username')
-   if(localUsername) router.push(`/game/${(+new Date()).toString(16)+Math.random()}`)
+   if(localUsername) router.push('/lobby')
    else isModal.value = true
 }
 </script>

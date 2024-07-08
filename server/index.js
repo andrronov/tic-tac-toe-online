@@ -19,6 +19,10 @@ app.ws('/', (ws, res) => {
          case 'move':
             SocketClass.broadcastUserMove(aWss, ws, msg)
             break
+
+        case 'rooms':
+            SocketClass.getRooms(aWss, ws, msg)
+            break;
       
          default:
             break;
@@ -26,7 +30,6 @@ app.ws('/', (ws, res) => {
    })
    
    ws.on('close', () => {
-    console.log('disconnected');
     SocketClass.handleDisconnect(aWss, ws)
   });
 })

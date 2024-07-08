@@ -1,6 +1,7 @@
 <template>
    <div class="w-full max-w-7xl mx-auto h-screen flex justify-center items-center flex-col">
-      <div class="grid grid-cols-3 gap-2 w-full max-w-7xl mx-auto h-full justify-center">
+      <p class="text-white">{{ moveIdx % 2 == 0 ? `User 1 move` : `User 2 move` }}</p>
+      <div class="grid grid-cols-3 gap-2 w-full s:w-1/3 max-w-7xl mx-auto h-1/2 justify-center">
          <div v-for="(item, index) in matrix" :key="index" @click="item.length < 1 ? userMove(index) : ''" class="place-self-center w-24 h-24 cursor-pointer text-2xl flex items-center justify-center bg-gray-400">
             {{ item }}
          </div>

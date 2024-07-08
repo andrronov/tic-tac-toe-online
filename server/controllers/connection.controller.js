@@ -5,6 +5,9 @@ class SocketClass{
 
    handleConnect(aWss, ws, message){
       ws.id = message.id
+      if(this.rooms.get(ws.id)?.length > 1){
+         return ws.send(JSON.stringify({method: 'abort', log: 'Room is full'}))
+      }
       if(!this.rooms.get(ws.id)){
          this.rooms.set(ws.id, [])
       }
@@ -19,8 +22,8 @@ class SocketClass{
    handleDisconnect(aWss, ws){
       const client = ws.user
       const users = this.rooms.get(ws.id)
-      this.rooms.set(ws.id, users.filter(user => user !== ws.user))
-      if(this.rooms.get(ws.id).length < 1) this.rooms.delete(ws.id)
+      this.rooms.set(ws.id, users?.filter(user => user !== ws.user))
+      if(this.rooms.get(ws.id)?.length < 1) this.rooms.delete(ws.id)
       const message = {
          method: 'disconnection',
          username: client,
@@ -44,6 +47,13 @@ class SocketClass{
       aWss.clients.forEach(client => {
          if(client.id === ws.id) client.send(JSON.stringify(message))
       })
+   }
+
+   getRooms(aWss, ws, message){
+      ws.send(JSON.stringify({
+         method: 'rooms',
+         lobby: Object.fromEntries(this.rooms.entries())
+      }))
    }
 }
 

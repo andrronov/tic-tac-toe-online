@@ -1,11 +1,14 @@
 <template>
+   <div v-if="log" class="fixed inset-0 flex items-center justify-center bg-red-600 text-white text-2xl">
+      {{ log }}
+   </div>
    <div class="w-full max-w-7xl mx-auto h-screen flex justify-between py-2 items-center flex-col">
       <div class="w-full flex flex-row items-center justify-around">
          <p class="text-white" v-for="(user, index) in users" :key="index">{{user}}</p>
       </div>
-      <p class="text-white">{{ store.moveIndex }}</p>
+      <p v-if="users.length > 0" class="text-white">{{ store.moveIndex % 2 == 0 ? `User ${users[0]} move` : `User ${users[1]} move` }}</p>
       <div class="grid grid-cols-3 gap-2 w-full s:w-1/3 max-w-7xl mx-auto h-1/2 justify-center">
-         <div v-for="(item, index) in matrix" :key="index" @click="item.length < 1 ? userMove(index) : ''" class="place-self-center w-24 h-24 cursor-pointer text-2xl flex items-center justify-center bg-gray-400">
+         <div v-for="(item, index) in matrix" :key="index" @click="item.length < 1 && isCanMove ? userMove(index) : ''" class="place-self-center w-24 h-24 cursor-pointer text-2xl flex items-center justify-center bg-gray-400">
             {{ item }}
          </div>
       </div>
@@ -20,7 +23,7 @@
 
       <div class="flex flex-col items-center gap-3">
          <button v-if="!isMatrixFull && !isWin" @click="restartGame" class="mt-2 p-1 text-white border border-white hover:bg-gray-800">Restart</button>
-         <button @click="router.push('/')" class="mt-2 p-1 text-white border border-white hover:bg-gray-800">Back to menu</button>
+         <button @click="router.push('/lobby')" class="mt-2 p-1 text-white border border-white hover:bg-gray-800">Back to lobby</button>
       </div>
    </div>
 </template>
@@ -35,16 +38,13 @@ const router = useRouter()
 const store = useTicTacStore()
 
 const users = ref([])
-const matrix = ref(store.matrix)
-const arrX = ref(store.arrX)
-const arrO = ref(store.arrO)
-const messages = ref([])
+const matrix = computed(() => store.matrix)
+const log = ref(null)
 
 function incrementMoveIdx(){
    store.incrementIndex()
 }
 function userMoveSocket(){
-   // console.log(store.matrix);
    socket.send(JSON.stringify({
          method: 'move',
          matrix: store.matrix,
@@ -57,13 +57,11 @@ function userMove(idx){
    const moveIdx = store.moveIndex
    if(moveIdx % 2 == 0){
       store.setMatrix(idx, 'O')
-      store.oArrayPush(idx)
       incrementMoveIdx()
       userMoveSocket()
       
    } else {
       store.setMatrix(idx, 'X')
-      store.xArrayPush(idx)
       incrementMoveIdx()
       userMoveSocket()
    }
@@ -90,11 +88,23 @@ function calculateWinner(cell){
 }
 
 function restartGame(){
-   for(let i = 0; i < matrix.value.length; i++) matrix.value[i] = ''
-   arrO.value = [], arrX.value = [], moveIdx.value = 1
+   store.setWholeMatrix(['', '', '','', '', '','', '', '',])
+   store.setMoveIndex(1)
+
+   socket.send(JSON.stringify({
+      method: 'move',
+      id: route.params.id,
+      matrix: store.matrix,
+      moveIndex: store.moveIndex
+   }))
 }
 
 const isWin = computed(() => calculateWinner(matrix.value))
+const isCanMove = computed(() => {
+   const moveIdx = store.moveIndex
+   if(localStorage.getItem('username') === users.value[0]) return moveIdx % 2 == 0
+   else return moveIdx % 2 !== 0 
+})
 const isMatrixFull = computed(() => {
    for(let i = 0; i < matrix.value.length; i++){
       if(matrix.value[i].length < 1){
@@ -117,7 +127,6 @@ watchEffect(() => {
 
    socket.onmessage = (event) => {
       let msg = JSON.parse(event.data)
-      console.log(msg);
       switch (msg.method) {
          case 'connection':
             console.log(`User ${msg.username} connected`);
@@ -134,18 +143,23 @@ watchEffect(() => {
             store.setMoveIndex(msg.index)
             break;
 
+         case 'abort':
+            log.value = msg.log
+            setTimeout(() => {
+               socket.close()
+               router.push('/')
+            }, 3500);
+            break
+
          default:
             break;
       }
    }
+
+   console.log(store.matrix);
 })
 
 onBeforeUnmount(() => {
    socket.close()
-   // socket.send(JSON.stringify({
-   //    method: 'disconnection',
-   //    username: localStorage.getItem('username'),
-   //    id: route.params.id
-   // }))
 })
 </script>
