@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 
 export const useTicTacStore = defineStore('tictac', {
    state: () => ({
-      moveIndex: 1,
+      moveIndex: 2,
       matrix: [
          '', '', '',
          '', '', '',

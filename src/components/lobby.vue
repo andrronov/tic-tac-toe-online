@@ -19,7 +19,7 @@
       </table>
 
       <div class="flex flex-col items-center gap-3">
-         <button @click="router.push('/')" class="p-2 text-white border-2 text-xl border-white hover:bg-gray-800">Start new game</button>
+         <button @click="startNewGame" class="p-2 text-white border-2 text-xl border-white hover:bg-gray-800">Start new game</button>
          <button @click="router.push('/')" class="p-1 text-white border border-white hover:bg-gray-800">Back to menu</button>
       </div>
    </div>
@@ -36,18 +36,17 @@ const data = ref(null)
 function playGame(index){
    router.push(`/game/${index}`)
 }
+function startNewGame(){
+   router.push(`/game/${(+new Date()).toString(16)+Math.random()}`)
+}
 
 watchEffect(() => {
-   console.log('opened');
-   socket.onopen = () => {
-      socket.send(JSON.stringify({
-         method: 'rooms'
-      }))
-   }
-})
-
-onMounted(() => {
-   console.log('mounted');
+   console.log('opened', socket.readyState);
+      socket.onopen = () => {
+         socket.send(JSON.stringify({
+            method: 'rooms'
+         }))
+      }
    socket.onmessage = (event) => {
       let msg = JSON.parse(event.data)
       switch(msg.method){
@@ -57,11 +56,13 @@ onMounted(() => {
          break;
       }
    }
+   console.log('opened after after', socket.readyState);
 })
 
-onBeforeUnmount(() => {
-   console.log('closed');
-   socket.close()
+onMounted(() => {
+   if(socket.readyState == 1){
+      socket.send(JSON.stringify({method: 'rooms'}))
+   }
 })
 </script>
 

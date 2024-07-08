@@ -15,6 +15,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import {useRouter} from 'vue-router'
+import socket from '../socket/main'
 const router = useRouter()
 
 const isModal = ref(false)
@@ -30,6 +31,10 @@ function openModal(){
    if(localUsername) router.push('/lobby')
    else isModal.value = true
 }
+
+onMounted(() => {
+   console.log(socket.readyState);
+})
 </script>
 
 <style>

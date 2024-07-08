@@ -22,8 +22,8 @@ class SocketClass{
    handleDisconnect(aWss, ws){
       const client = ws.user
       const users = this.rooms.get(ws.id)
+      if(users?.length < 1) return this.rooms.delete(ws.id)
       this.rooms.set(ws.id, users?.filter(user => user !== ws.user))
-      if(this.rooms.get(ws.id)?.length < 1) this.rooms.delete(ws.id)
       const message = {
          method: 'disconnection',
          username: client,

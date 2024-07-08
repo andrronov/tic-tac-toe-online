@@ -23,6 +23,10 @@ app.ws('/', (ws, res) => {
         case 'rooms':
             SocketClass.getRooms(aWss, ws, msg)
             break;
+
+        case 'leave':
+            SocketClass.handleDisconnect(aWss, ws)
+            break;
       
          default:
             break;

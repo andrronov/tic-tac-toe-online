@@ -2,12 +2,16 @@
    <div v-if="log" class="fixed inset-0 flex items-center justify-center bg-red-600 text-white text-2xl">
       {{ log }}
    </div>
+   <div v-if="users.length < 2" class="fixed inset-0 flex flex-col gap-4 items-center justify-center bg-black text-white text-2xl">
+      <p>Waiting for second player...</p>
+      <button @click="router.push('/lobby')" class="mt-2 p-1 text-white border border-white hover:bg-gray-800">Back to lobby</button>
+   </div>
    <div class="w-full max-w-7xl mx-auto h-screen flex justify-between py-2 items-center flex-col">
       <div class="w-full flex flex-row items-center justify-around">
          <p class="text-white" v-for="(user, index) in users" :key="index">{{user}}</p>
       </div>
       <p v-if="users.length > 0" class="text-white">{{ store.moveIndex % 2 == 0 ? `User ${users[0]} move` : `User ${users[1]} move` }}</p>
-      <div class="grid grid-cols-3 gap-2 w-full s:w-1/3 max-w-7xl mx-auto h-1/2 justify-center">
+      <div class="grid grid-cols-3 gap-2 w-full s:w-1/2 max-w-7xl mx-auto h-1/2 justify-center">
          <div v-for="(item, index) in matrix" :key="index" @click="item.length < 1 && isCanMove ? userMove(index) : ''" class="place-self-center w-24 h-24 cursor-pointer text-2xl flex items-center justify-center bg-gray-400">
             {{ item }}
          </div>
@@ -28,7 +32,7 @@
    </div>
 </template>
 <script setup>
-import {computed, onBeforeUnmount, ref, watch, watchEffect} from 'vue'
+import {computed, onBeforeUnmount, onMounted, ref, watch, watchEffect} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import { useTicTacStore } from '../store/store.js'
 import socket from '../socket/main.js'
@@ -127,6 +131,7 @@ watchEffect(() => {
 
    socket.onmessage = (event) => {
       let msg = JSON.parse(event.data)
+      console.log(msg);
       switch (msg.method) {
          case 'connection':
             console.log(`User ${msg.username} connected`);
@@ -146,7 +151,6 @@ watchEffect(() => {
          case 'abort':
             log.value = msg.log
             setTimeout(() => {
-               socket.close()
                router.push('/')
             }, 3500);
             break
@@ -155,11 +159,19 @@ watchEffect(() => {
             break;
       }
    }
+})
 
-   console.log(store.matrix);
+onMounted(() => {
+   if(socket.readyState === 1) {
+      socket.send(JSON.stringify({
+            id: route.params.id,
+            username: localStorage.getItem('username'),
+            method: 'connection'
+         }))
+   }
 })
 
 onBeforeUnmount(() => {
-   socket.close()
+   socket.send(JSON.stringify({method: 'leave', username: localStorage.getItem('username')}))
 })
 </script>
