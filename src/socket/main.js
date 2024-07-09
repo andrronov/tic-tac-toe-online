@@ -1,4 +1,4 @@
-const socket = new WebSocket('ws://localhost:1234')
+const socket = new WebSocket('wss://tic-tac-toe-uusw.onrender.com')
 // socket.onopen = () => {
 //    socket.send(JSON.stringify({
 //       method: 'connection',
