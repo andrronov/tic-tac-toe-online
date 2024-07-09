@@ -1,5 +1,5 @@
 <template>
-  <router-view />
+  <router-view class="bg-gray-900" />
 </template>
 
 <script setup>
