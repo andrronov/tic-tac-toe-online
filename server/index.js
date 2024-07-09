@@ -6,6 +6,8 @@ const app = express();
 const { app: wsApp, getWss } = expressWs(app);
 const aWss = getWss()
 
+app.use(express.static('dist'))
+
 app.ws('/', (ws, res) => {
    ws.on('message', (message) =>{
       const msg = JSON.parse(message)
