@@ -4,40 +4,40 @@ import SocketClass from "./controllers/connection.controller.js";
 
 const app = express();
 const { app: wsApp, getWss } = expressWs(app);
-const aWss = getWss()
+const aWss = getWss();
 
-app.use(express.static('dist'))
+app.use(express.static("dist"));
 
-app.ws('/', (ws, res) => {
-   ws.on('message', (message) =>{
-      const msg = JSON.parse(message)
-      ws.user = msg.username
+app.ws("/", (ws, res) => {
+  ws.on("message", (message) => {
+    const msg = JSON.parse(message);
+    ws.user = msg.username;
 
-      switch (msg.method) {
-         case 'connection':
-            SocketClass.handleConnect(aWss, ws, msg)
-            break;
+    switch (msg.method) {
+      case "connection":
+        SocketClass.handleConnect(aWss, ws, msg);
+        break;
 
-         case 'move':
-            SocketClass.broadcastUserMove(aWss, ws, msg)
-            break
+      case "move":
+        SocketClass.broadcastUserMove(aWss, ws, msg);
+        break;
 
-        case 'rooms':
-            SocketClass.getRooms(aWss, ws, msg)
-            break;
+      case "rooms":
+        SocketClass.getRooms(aWss, ws, msg);
+        break;
 
-        case 'leave':
-            SocketClass.handleDisconnect(aWss, ws)
-            break;
-      
-         default:
-            break;
-      }
-   })
-   
-   ws.on('close', () => {
-    SocketClass.handleDisconnect(aWss, ws)
+      case "leave":
+        SocketClass.handleDisconnect(aWss, ws);
+        break;
+
+      default:
+        break;
+    }
   });
-})
 
-app.listen('1234', () => console.log('App works on port 1234'));
+  ws.on("close", () => {
+    SocketClass.handleDisconnect(aWss, ws);
+  });
+});
+
+app.listen("1234", () => console.log("App works on port 1234"));
