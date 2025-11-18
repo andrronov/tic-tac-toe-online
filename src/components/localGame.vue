@@ -1,54 +1,3 @@
-<template>
-  <div
-    class="w-full max-w-7xl mx-auto h-screen flex justify-center items-center flex-col"
-  >
-    <p class="text-white">
-      {{ moveIdx % 2 == 0 ? `User 1 move` : `User 2 move` }}
-    </p>
-    <div
-      class="grid grid-cols-3 gap-2 w-full s:w-1/3 max-w-7xl mx-auto h-1/2 justify-center"
-    >
-      <div
-        v-for="(item, index) in matrix"
-        :key="index"
-        @click="item.length < 1 ? userMove(index) : ''"
-        class="place-self-center w-24 h-24 cursor-pointer text-2xl flex items-center justify-center bg-gray-400"
-      >
-        {{ item }}
-      </div>
-    </div>
-    <div
-      v-if="isWin"
-      @click="restartGame"
-      class="p-2 border border-white text-white text-xl text-center w-60 cursor-pointer hover:bg-white hover:text-black"
-    >
-      <p>Winner: {{ isWin }}</p>
-      <p>Restart?</p>
-    </div>
-    <div
-      v-if="isMatrixFull && !isWin"
-      @click="restartGame"
-      class="p-2 border border-white text-white text-xl text-center w-60 cursor-pointer hover:bg-white hover:text-black"
-    >
-      <p>Draw</p>
-      <p>Restart?</p>
-    </div>
-
-    <button
-      v-if="!isMatrixFull && !isWin"
-      @click="restartGame"
-      class="mt-2 p-1 text-white border border-white hover:bg-gray-800"
-    >
-      Restart
-    </button>
-    <button
-      @click="router.push('/')"
-      class="mt-2 p-1 text-white border border-white hover:bg-gray-800"
-    >
-      Back to menu
-    </button>
-  </div>
-</template>
 <script setup>
 import { computed, ref, watch, watchEffect } from "vue";
 import { useRouter } from "vue-router";
@@ -110,3 +59,56 @@ const isMatrixFull = computed(() => {
   return true;
 });
 </script>
+
+<template>
+  <div
+    class="w-full max-w-7xl mx-auto h-screen flex justify-center items-center flex-col"
+  >
+    <p class="text-white">
+      {{ moveIdx % 2 == 0 ? `User 1 move` : `User 2 move` }}
+    </p>
+    <div
+      class="grid grid-cols-3 gap-2 w-full s:w-1/3 max-w-7xl mx-auto h-1/2 justify-center"
+    >
+      <div
+        v-for="(item, index) in matrix"
+        :key="index"
+        @click="item.length < 1 ? userMove(index) : ''"
+        class="place-self-center w-24 h-24 cursor-pointer text-2xl flex items-center justify-center bg-gray-400"
+      >
+        {{ item }}
+      </div>
+    </div>
+    <div
+      v-if="isWin"
+      @click="restartGame"
+      class="p-2 border border-white text-white text-xl text-center w-60 cursor-pointer hover:bg-white hover:text-black"
+    >
+      <p>Winner: {{ isWin }}</p>
+      <p>Restart?</p>
+    </div>
+    <div
+      v-if="isMatrixFull && !isWin"
+      @click="restartGame"
+      class="p-2 border border-white text-white text-xl text-center w-60 cursor-pointer hover:bg-white hover:text-black"
+    >
+      <p>Draw</p>
+      <p>Restart?</p>
+    </div>
+
+    <button
+      v-if="!isMatrixFull && !isWin"
+      @click="restartGame"
+      class="mt-2 p-1 text-white border border-white hover:bg-gray-800"
+    >
+      Restart
+    </button>
+    <button
+      @click="router.push('/')"
+      class="mt-2 p-1 text-white border border-white hover:bg-gray-800"
+    >
+      Back to menu
+    </button>
+  </div>
+</template>
+
