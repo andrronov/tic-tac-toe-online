@@ -8,45 +8,42 @@ class SocketClass {
     if (this.rooms.get(ws.id)?.length > 1) {
       return ws.send(JSON.stringify({ method: "abort", log: "Room is full" }));
     }
+
     if (!this.rooms.get(ws.id)) {
       this.rooms.set(ws.id, []);
     }
     this.rooms.get(ws.id).push(message.username);
-    const messageAPI = {
+
+    this.broadcastMessage(aWss, ws, {
       method: "connection",
       username: ws.user,
       clients: this.rooms.get(ws.id),
-    };
-    this.broadcastConnection(aWss, ws, messageAPI);
+    });
   }
+
   handleDisconnect(aWss, ws) {
     const client = ws.user;
-    const users = this.rooms.get(ws.id);
-    if (users?.length < 1) return this.rooms.delete(ws.id);
-    this.rooms.set(
-      ws.id,
-      users?.filter((user) => user !== ws.user),
-    );
-    const message = {
+    let users = this.rooms.get(ws.id);
+
+    let updatedUsers = [];
+    if (users) {
+      updatedUsers = users.filter((user) => user !== ws.user);
+    }
+
+    this.broadcastMessage(aWss, ws, {
       method: "disconnection",
       username: client,
-      clients: this.rooms.get(ws.id),
-    };
-    this.broadcastDisconnection(aWss, ws, message);
+      clients: updatedUsers,
+    });
+
+    if (updatedUsers.length < 1) {
+      this.rooms.delete(ws.id);
+    } else {
+      this.rooms.set(ws.id, updatedUsers);
+    }
   }
 
-  broadcastConnection(aWss, ws, message) {
-    aWss.clients.forEach((client) => {
-      if (client.id === ws.id) client.send(JSON.stringify(message));
-    });
-  }
-  broadcastDisconnection(aWss, ws, message) {
-    aWss.clients.forEach((client) => {
-      if (client.id === ws.id) client.send(JSON.stringify(message));
-    });
-  }
-
-  broadcastUserMove(aWss, ws, message) {
+  broadcastMessage(aWss, ws, message) {
     aWss.clients.forEach((client) => {
       if (client.id === ws.id) client.send(JSON.stringify(message));
     });
@@ -56,7 +53,10 @@ class SocketClass {
     ws.send(
       JSON.stringify({
         method: "rooms",
-        lobby: Object.fromEntries(this.rooms.entries()),
+        lobby: Array.from(this.rooms.entries()).map(([id, players]) => ({
+          id,
+          players,
+        })),
       }),
     );
   }

@@ -1,29 +1,47 @@
 import { createWebHashHistory, createRouter } from "vue-router";
+import { useUserStore } from "@/store/user";
 
 const routes = [
   {
     path: "/",
     name: "main",
-    component: () => import("../components/menu.vue"),
+    component: () => import("@/pages/Home.vue"),
   },
   {
     path: "/local",
-    component: () => import("../components/localGame.vue"),
+    name: "local",
+    component: () => import("@/pages/Local.vue"),
   },
   {
     path: "/lobby",
-    component: () => import("../components/lobby.vue"),
+    name: "lobby",
+    meta: {
+      requiresAuth: true,
+    },
+    component: () => import("@/pages/Lobby.vue"),
   },
   {
     path: "/game/:id",
     name: "game",
-    component: () => import("../components/game.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+    component: () => import("@/pages/Game.vue"),
   },
 ];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore();
+  if (to.meta.requiresAuth && !userStore.user) {
+    next({ name: "main" });
+  } else {
+    next();
+  }
 });
 
 export default router;
