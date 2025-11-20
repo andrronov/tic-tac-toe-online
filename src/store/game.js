@@ -55,6 +55,7 @@ export const useGameStore = defineStore("game", () => {
       interval: 10000,
       message: "ping",
     },
+    onConnected: () => console.log("Connected to socket successfully"),
     onMessage: (event, msg) => {
       if (msg.data === "pong") {
         return;
